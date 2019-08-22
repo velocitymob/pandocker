@@ -28,20 +28,24 @@ RUN set -x && \
         # for deployment
         openssh-client \
         rsync \
+        # for locales and utf-8 support
+        locales \
         # latex toolchain
         lmodern \
         texlive \
         texlive-lang-french \
-		texlive-lang-german \
+        texlive-lang-german \
         texlive-luatex \
         texlive-pstricks \
         texlive-xetex \
-		xzdec \
+        xzdec \
         # reveal (see issue #18)
         netbase \
+        # dia
+        dia \
         # fonts
         fonts-lato \
-		fonts-liberation \
+        fonts-liberation \
         # build tools
         make \
         git \
@@ -57,7 +61,7 @@ RUN set -x && \
         poppler-utils \
         zlibc \
         # WeasyPrint
-		build-essential \
+        build-essential \
         python3-dev \
         python3-pip \
         python3-cffi \
@@ -67,15 +71,25 @@ RUN set -x && \
         libgdk-pixbuf2.0-0 \
         libffi-dev \
         shared-mime-info \
+        # for emojis
+        librsvg2-bin \
     # clean up
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /etc/apt/apt.conf.d/01proxy
 
 #
+# Set Locale for UTF-8 support
+# This is needed for panflute filters see :
+# https://github.com/dalibo/pandocker/pull/86
+#
+RUN locale-gen C.UTF-8
+ENV LANG C.UTF-8
+
+#
 # SSH pre-config / useful for Gitlab CI
 #
 RUN mkdir -p ~/.ssh && \
-    echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    /bin/echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config # See Issue #87
 
 #
 # Add local cache/. It's empty by default so this does not change the final
@@ -88,7 +102,7 @@ ADD cache/ ./cache
 #
 # Install pandoc from upstream. Debian package is too old.
 #
-ARG PANDOC_VERSION=2.2.3.1
+ARG PANDOC_VERSION=2.7
 ADD fetch-pandoc.sh /usr/local/bin/
 RUN fetch-pandoc.sh ${PANDOC_VERSION} ./cache/pandoc.deb && \
     dpkg --install ./cache/pandoc.deb && \
@@ -106,9 +120,31 @@ RUN pip3 --no-cache-dir install --find-links file://${PWD}/cache -r requirements
 #
 ARG TEMPLATES_DIR=/root/.pandoc/templates
 RUN mkdir -p ${TEMPLATES_DIR} && \
-	wget https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template/master/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex
+    wget https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template/master/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex
 RUN tlmgr init-usertree && \
-	tlmgr install ly1 inconsolata sourcesanspro sourcecodepro mweights
+    tlmgr install ly1 inconsolata sourcesanspro sourcecodepro mweights noto
+
+#
+# emojis support for latex
+# https://github.com/mreq/xelatex-emoji
+#
+ARG TEXMF=/usr/share/texmf/tex/latex/
+ARG EMOJI_DIR=/tmp/twemoji
+RUN git clone --single-branch --depth=1 --branch gh-pages https://github.com/twitter/twemoji.git $EMOJI_DIR && \
+    # fetch xelatex-emoji
+    mkdir -p ${TEXMF} && \
+    cd ${TEXMF} && \
+    git clone --single-branch --branch images https://github.com/daamien/xelatex-emoji.git && \
+    # convert twemoji SVG files into PDF files
+    cp -r $EMOJI_DIR/2/svg xelatex-emoji/images && \
+    cd xelatex-emoji/images && \
+    ../bin/convert_svgs_to_pdfs ./*.svg && \
+    # clean up
+    rm -f *.svg && \
+    rm -fr ${EMOJI_DIR} && \
+    # update texlive
+    cd ${TEXMF} && \
+    texhash
 
 VOLUME /pandoc
 WORKDIR /pandoc

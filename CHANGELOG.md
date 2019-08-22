@@ -1,9 +1,58 @@
 Changelog
 ===============================================================================
 
+19.08
+-------------------------------------------------------------------------------
 
-18.11
-------------------------------------------------------------------------------- 
+__Stack__
+* Debian 9 stretch
+* Pandoc 2.7
+
+__Changes__
+
+* Freeze pip versions (daamien)
+* Add pandoc-codeblock-include filter (daamien)
+* Add dia (daamien)
+
+<https://github.com/dalibo/pandocker/milestone/8>
+
+19.05
+-------------------------------------------------------------------------------
+
+__Stack__
+* Debian 9 stretch
+* Pandoc 2.7
+
+__Changes__
+
+* Switch to pandoc 2.7  (daamien)
+* FIX #87 Error in .ssh/config ( bersace + misamura)
+* Add include filter (misamura)
+
+
+<https://github.com/dalibo/pandocker/milestone/7>
+
+
+19.02
+-------------------------------------------------------------------------------
+
+__Stack__
+* Debian 9 stretch
+* Pandoc 2.6
+
+__Changes__
+
+* Switch to pandoc 2.6  (daamien)
+* Add emojis support for PDF (daamien + liloumuloup)
+* Add more CI tests (daamien)
+* Add support for mustache template syntax with `pandoc-mustache` (daamien + madtibo)
+
+<https://github.com/dalibo/pandocker/milestone/6>
+
+
+
+18.11 [a819f9abb4609cd764882e9898993556f9a1fc4c]
+-------------------------------------------------------------------------------
 
 __Stack__
 * Debian 9 stretch
@@ -22,7 +71,7 @@ __Changes__
 
 
 18.08 [3a5e13cb74ee837b995146eaa4d0da3d05e87acd]
-------------------------------------------------------------------------------- 
+-------------------------------------------------------------------------------
 
 __Stack__
 * Debian 9 stretch

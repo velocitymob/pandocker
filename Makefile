@@ -1,6 +1,6 @@
 NAME?=dalibo/pandocker
 TAG?=$(shell git branch | grep -e "^*" | cut -d' ' -f 2)
-PANDOC_VERSION?=2.2.3.1
+PANDOC_VERSION?=2.7
 
 all: build
 
@@ -12,7 +12,7 @@ build: Dockerfile
 	    --tag $(NAME):$(TAG) .
 
 test:
-	.circleci/test.sh $(TAG)
+	tests/test.sh $(TAG)
 
 authors:
 	git shortlog -s -n

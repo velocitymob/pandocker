@@ -26,6 +26,11 @@ RUN set -x && \
     apt-get -qq update && \
     apt-get -qy install --no-install-recommends \
         # for deployment
+				aspell \
+				spell \
+				cmake \
+				build-essential \
+				wget \
         openssh-client \
         rsync \
         # for locales and utf-8 support
@@ -33,7 +38,7 @@ RUN set -x && \
         # latex toolchain
         lmodern \
         texlive \
-        texlive-lang-french \
+        texlive-lang-english \
         texlive-lang-german \
         texlive-luatex \
         texlive-pstricks \
@@ -140,6 +145,3 @@ WORKDIR /pandoc
 
 # Compatibility with Pandoc 1.x arguments
 # use `--entrypoint=pandoc1.sh` to activate it
-ADD pandoc1.sh /usr/local/bin
-
-ENTRYPOINT ["pandoc"]

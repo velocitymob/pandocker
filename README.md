@@ -1,7 +1,8 @@
 # pandocker
-
+<!--
 [![github
 release](https://img.shields.io/github/release/velocitymob/pandocker.svg?label=current+release)](https://github.com/velocitymob/pandocker/releases)
+-->
 [![Docker Image](https://images.microbadger.com/badges/image/velocitymob/pandocker.svg)](https://hub.docker.com/r/velocitymob/pandocker)
 [![CI](https://circleci.com/gh/velocitymob/pandocker.svg?style=shield)](https://circleci.com/gh/velocitymob/pandocker)
 [![License](https://img.shields.io/github/license/velocitymob/pandocker.svg)](https://github.com/velocitymob/pandocker/blob/master/LICENSE)

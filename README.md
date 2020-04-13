@@ -108,3 +108,5 @@ you can convert a `dia` source file into an SVG image like this:
 ``` console
 $ docker run [..] --entrypoint dia velocitymob/pandocker foo.dia -e foo.svg
 ```
+
+try it

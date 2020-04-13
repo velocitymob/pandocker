@@ -88,118 +88,123 @@ ENV LANG C.UTF-8
 #
 RUN mkdir -p ~/.ssh && \
     /bin/echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config # See Issue #87
-
 #
 # Add local cache/. It's empty by default so this does not change the final
 # image on Docker Hub.
 #
 # However, once warmed with make warm-cache, it can save a lots of bandwidth.
 #
+# RUN mkdir -p ./cache
 ADD cache/ ./cache
+RUN ls /
 
 #
 # Install pandoc from upstream. Debian package is too old.
 #
-ARG PANDOC_VERSION=2.9.1
+
 ADD fetch-pandoc.sh /usr/local/bin/
-RUN fetch-pandoc.sh ${PANDOC_VERSION} ./cache/pandoc.deb && \
-    dpkg --install ./cache/pandoc.deb && \
-    rm -f ./cache/pandoc.deb
+RUN printenv
+ARG PANDOC_VERSION=2.9.2.1
+RUN echo ${PANDOC_VERSION} 
+RUN fetch-pandoc.sh ${PANDOC_VERSION} ./cache/pandoc.deb  
+    # && \
+    # dpkg --install ./cache/pandoc.deb && \
+    # rm -f ./cache/pandoc.deb
 
-#
-# Pandoc filters
-#
+# #
+# # Pandoc filters
+# #
 
-#
-# Python filters
-#
+# #
+# # Python filters
+# #
 
-ADD requirements.txt ./
-RUN pip3 --no-cache-dir install --find-links file://${PWD}/cache -r requirements.txt
+# ADD requirements.txt ./
+# RUN pip3 --no-cache-dir install --find-links file://${PWD}/cache -r requirements.txt
 
-#
-# pandoc-crossref
-#
-# This version must correspond to the correct PANDOC_VERSION.
-# See https://github.com/lierdakil/pandoc-crossref/releases to find the latest
-# release corresponding to the desired pandoc version.
-ARG PANDOC_CROSSREF_VERSION=0.3.6.1a
-ADD fetch-pandoc-crossref.sh /usr/local/bin/
-RUN fetch-pandoc-crossref.sh ${PANDOC_VERSION} ${PANDOC_CROSSREF_VERSION} ./cache/pandoc-crossref.tar.gz && \
-    tar xf ./cache/pandoc-crossref.tar.gz && \
-    install pandoc-crossref /usr/local/bin/ && \
-    install -d /usr/local/man/man1 && \
-    install pandoc-crossref.1 /usr/local/man/man1/
+# #
+# # pandoc-crossref
+# #
+# # This version must correspond to the correct PANDOC_VERSION.
+# # See https://github.com/lierdakil/pandoc-crossref/releases to find the latest
+# # release corresponding to the desired pandoc version.
+# # ARG PANDOC_CROSSREF_VERSION=0.3.6.1a
+# # ADD fetch-pandoc-crossref.sh /usr/local/bin/
+# # RUN fetch-pandoc-crossref.sh ${PANDOC_VERSION} ${PANDOC_CROSSREF_VERSION} ./cache/pandoc-crossref.tar.gz && \
+# #     tar xf ./cache/pandoc-crossref.tar.gz && \
+# #     install pandoc-crossref /usr/local/bin/ && \
+# #     install -d /usr/local/man/man1 && \
+# #     install pandoc-crossref.1 /usr/local/man/man1/
 
-# Templates
+# # # Templates
 
-ARG TEXMFLOCAL=TEXMFLOCAL=/usr/local/share/texmf
-
-
-ENV TEXMFLOCAL=/usr/local/share/texmf
-ARG TEMPLATES_DIR=/.pandoc/templates
-
-#
-# eisvogel template
-#
-# eisvogel template
-
-ARG EISVOGEL_REPO=https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template
-ARG EISVOGEL_VERSION=v1.4.0
-
-RUN mkdir -p ${TEMPLATES_DIR} && \
-    wget ${EISVOGEL_REPO}/${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex && \
-    # Links for the non-existent
-    ln -s ${TEXMFLOCAL} /texmf && \
-    # Links for the root user
-    ln -s /.pandoc /root/.pandoc && \
-    ln -s ${TEXMFLOCAL} /root/texmf
-
-RUN tlmgr init-usertree && \
-    tlmgr install awesomebox fontawesome ly1 inconsolata sourcesanspro sourcecodepro mweights noto && \
-    # fixup: download awesome-compat
-    # this may not be requitred with debian buster
-    # see: https://github.com/Wandmalfarbe/pandoc-latex-template/issues/154#issuecomment-586620431
-    wget https://raw.githubusercontent.com/milouse/latex-awesomebox/master/awesomebox-compat.sty \
-            -O ${TEXMFLOCAL}/tex/latex/awesomebox/awesomebox-compat.sty
-
-# letter template
-ARG LETTER_REPO=https://raw.githubusercontent.com/aaronwolen/pandoc-letter
-ARG LETTER_VERSION=master
-RUN wget ${LETTER_REPO}/${LETTER_VERSION}/template-letter.tex -O ${TEMPLATES_DIR}/letter.latex
-
-# leaflet template
-ARG LEAFLET_REPO=https://gitlab.com/daamien/pandoc-leaflet-template/raw
-ARG LEAFLET_VERSION=1.0
-RUN wget ${LEAFLET_REPO}/${LEAFLET_VERSION}/leaflet.latex -O ${TEMPLATES_DIR}/leaflet.latex
+# ARG TEXMFLOCAL=TEXMFLOCAL=/usr/local/share/texmf
 
 
+# ENV TEXMFLOCAL=/usr/local/share/texmf
+# ARG TEMPLATES_DIR=/.pandoc/templates
+
+# #
+# # eisvogel template
+# #
+# # eisvogel template
+
+# ARG EISVOGEL_REPO=https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template
+# ARG EISVOGEL_VERSION=v1.4.0
+
+# RUN mkdir -p ${TEMPLATES_DIR} && \
+#     wget ${EISVOGEL_REPO}/${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex && \
+#     # Links for the non-existent
+#     ln -s ${TEXMFLOCAL} /texmf && \
+#     # Links for the root user
+#     ln -s /.pandoc /root/.pandoc && \
+#     ln -s ${TEXMFLOCAL} /root/texmf
+
+# RUN tlmgr init-usertree && \
+#     tlmgr install awesomebox fontawesome ly1 inconsolata sourcesanspro sourcecodepro mweights noto && \
+#     # fixup: download awesome-compat
+#     # this may not be requitred with debian buster
+#     # see: https://github.com/Wandmalfarbe/pandoc-latex-template/issues/154#issuecomment-586620431
+#     wget https://raw.githubusercontent.com/milouse/latex-awesomebox/master/awesomebox-compat.sty \
+#             -O ${TEXMFLOCAL}/tex/latex/awesomebox/awesomebox-compat.sty
+
+# # letter template
+# ARG LETTER_REPO=https://raw.githubusercontent.com/aaronwolen/pandoc-letter
+# ARG LETTER_VERSION=master
+# RUN wget ${LETTER_REPO}/${LETTER_VERSION}/template-letter.tex -O ${TEMPLATES_DIR}/letter.latex
+
+# # leaflet template
+# ARG LEAFLET_REPO=https://gitlab.com/daamien/pandoc-leaflet-template/raw
+# ARG LEAFLET_VERSION=1.0
+# RUN wget ${LEAFLET_REPO}/${LEAFLET_VERSION}/leaflet.latex -O ${TEMPLATES_DIR}/leaflet.latex
 
 
-#
-# emojis support for latex
-# https://github.com/mreq/xelatex-emoji
-#
-ARG TEXMF=/usr/share/texmf/tex/latex/
-ARG EMOJI_DIR=/tmp/twemoji
-RUN git clone --single-branch --depth=1 --branch gh-pages https://github.com/twitter/twemoji.git $EMOJI_DIR && \
-    # fetch xelatex-emoji
-    mkdir -p ${TEXMF} && \
-    cd ${TEXMF} && \
-    git clone --single-branch --branch images https://github.com/daamien/xelatex-emoji.git && \
-    # convert twemoji SVG files into PDF files
-    cp -r $EMOJI_DIR/2/svg xelatex-emoji/images && \
-    cd xelatex-emoji/images && \
-    ../bin/convert_svgs_to_pdfs ./*.svg && \
-    # clean up
-    rm -f *.svg && \
-    rm -fr ${EMOJI_DIR} && \
-    # update texlive
-    cd ${TEXMF} && \
-    texhash
 
-VOLUME /pandoc
-WORKDIR /pandoc
 
-# Compatibility with Pandoc 1.x arguments
-# use `--entrypoint=pandoc1.sh` to activate it
+# #
+# # emojis support for latex
+# # https://github.com/mreq/xelatex-emoji
+# #
+# ARG TEXMF=/usr/share/texmf/tex/latex/
+# ARG EMOJI_DIR=/tmp/twemoji
+# RUN git clone --single-branch --depth=1 --branch gh-pages https://github.com/twitter/twemoji.git $EMOJI_DIR && \
+#     # fetch xelatex-emoji
+#     mkdir -p ${TEXMF} && \
+#     cd ${TEXMF} && \
+#     git clone --single-branch --branch images https://github.com/daamien/xelatex-emoji.git && \
+#     # convert twemoji SVG files into PDF files
+#     cp -r $EMOJI_DIR/2/svg xelatex-emoji/images && \
+#     cd xelatex-emoji/images && \
+#     ../bin/convert_svgs_to_pdfs ./*.svg && \
+#     # clean up
+#     rm -f *.svg && \
+#     rm -fr ${EMOJI_DIR} && \
+#     # update texlive
+#     cd ${TEXMF} && \
+#     texhash
+
+# VOLUME /pandoc
+# WORKDIR /pandoc
+
+# # Compatibility with Pandoc 1.x arguments
+# # use `--entrypoint=pandoc1.sh` to activate it

@@ -1,6 +1,6 @@
-NAME?=dalibo/pandocker
+NAME?=velocitymob/pandocker
 TAG?=$(shell git branch | grep -e "^*" | cut -d' ' -f 2)
-PANDOC_VERSION?=2.7
+PANDOC_VERSION?=2.9.2.1
 
 all: build
 

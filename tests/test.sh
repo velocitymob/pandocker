@@ -11,10 +11,10 @@ trap 'docker rm --force --volumes pandoc-volumes' EXIT INT TERM
 SRC=sample-presentation.md
 
 # the `--user` option breaks eisvogel
-#DOCKER_OPT="--rm --volume=`pwd`:/pandoc --user $(id -u):$(id -g)"
+DOCKER_OPT="--rm --volume=`pwd`:/pandoc --user $(id -u):$(id -g)"
 
 # CircleCi does not mount volumes like that
-#DOCKER_OPT="--rm --volume=`pwd`:/pandoc"
+DOCKER_OPT="--rm --volume=`pwd`:/pandoc"
 
 DOCKER_OPT="--rm --volumes-from pandoc-volumes"
 
@@ -42,39 +42,39 @@ $PANDOC -t beamer $IN/$SRC -o $OUT/$DEST
 
 #docker cp pandoc-volumes:/pandoc/$DEST .
 
-# 02. Reveal export
-DEST=tmp-slides.html
-$PANDOC -t revealjs $IN/$SRC -o $OUT/$DEST
-#docker cp pandoc-volumes:/pandoc/$DEST .
+# # 02. Reveal export
+# DEST=tmp-slides.html
+# $PANDOC -t revealjs $IN/$SRC -o $OUT/$DEST
+# #docker cp pandoc-volumes:/pandoc/$DEST .
 
 # 03. Handout PDF export
 DEST=tmp-handout.pdf
 $PANDOC --pdf-engine=xelatex $IN/$SRC -o $OUT/$DEST
 #docker cp pandoc-volumes:/pandoc/$DEST .
 
-# 04. Check bug #18
-# https://github.com/dalibo/pandocker/issues/18
-DEST=tmp-slides.self-contained.html
-$PANDOC -t revealjs $IN/$SRC --standalone --self-contained -V revealjs-url:https://revealjs.com/  -o $OUT/$DEST
-#docker cp pandoc-volumes:/pandoc/$DEST .
+# # 04. Check bug #18
+# # https://github.com/dalibo/pandocker/issues/18
+# DEST=tmp-slides.self-contained.html
+# $PANDOC -t revealjs $IN/$SRC --standalone --self-contained -V revealjs-url:https://revealjs.com/  -o $OUT/$DEST
+# #docker cp pandoc-volumes:/pandoc/$DEST .
 
-# 05. Check bug #36 : wrapper introduces quote errors
-# https://github.com/dalibo/pandocker/issues/18
-PANDOCSH="docker run $DOCKER_OPT --entrypoint=pandoc1.sh velocitymob/pandocker:$TAG --verbose"
-DEST=tmp-handout.bug36.pdf
-$PANDOCSH --latex-engine=xelatex --no-tex-ligatures $IN/$SRC -o $OUT/$DEST
-#docker cp pandoc-volumes:/pandoc/$DEST .
+# # 05. Check bug #36 : wrapper introduces quote errors
+# # https://github.com/dalibo/pandocker/issues/18
+# PANDOCSH="docker run $DOCKER_OPT --entrypoint=pandoc1.sh velocitymob/pandocker:$TAG --verbose"
+# DEST=tmp-handout.bug36.pdf
+# $PANDOCSH --latex-engine=xelatex --no-tex-ligatures $IN/$SRC -o $OUT/$DEST
+# #docker cp pandoc-volumes:/pandoc/$DEST .
 
-# 06. FILTER : Minted : TEX Export
-MINTED_OPT="--filter pandoc-minted --pdf-engine-opt=-shell-escape"
-DEST=tmp-minted.tex
-$PANDOC $MINTED_OPT $IN/minted.md  -o $OUT/$DEST
-#docker cp pandoc-volumes:/pandoc/$DEST .
+# # 06. FILTER : Minted : TEX Export
+# MINTED_OPT="--filter pandoc-minted --pdf-engine-opt=-shell-escape"
+# DEST=tmp-minted.tex
+# $PANDOC $MINTED_OPT $IN/minted.md  -o $OUT/$DEST
+# #docker cp pandoc-volumes:/pandoc/$DEST .
 
-# 07. FILTER : Minted : PDF Export
-DEST=tmp-minted.pdf
-$PANDOC $MINTED_OPT --pdf-engine=xelatex  $IN/minted.md  -o $OUT/$DEST
-#docker cp pandoc-volumes:/pandoc/$DEST .
+# # 07. FILTER : Minted : PDF Export
+# DEST=tmp-minted.pdf
+# $PANDOC $MINTED_OPT --pdf-engine=xelatex  $IN/minted.md  -o $OUT/$DEST
+# #docker cp pandoc-volumes:/pandoc/$DEST .
 
 # 08. Bug #44 : Support for German characters
 DEST=markdown_de.pdf
@@ -94,11 +94,11 @@ $PANDOC --pdf-engine=xelatex $IN/magicienletter.md -o $OUT/magicienletter.html
 # 12. Dokuwiki
 $PANDOC --from dokuwiki --to markdown $IN/syntax.dokuwiki.txt -o $OUT/syntax.dokuwiki.md
 
-# 13. Include
+#13. Include
 $PANDOC --filter pandoc-include $IN/include.md -o $OUT/include.complete.md
 
-# 14. Codeblock Include
-$PANDOC --filter pandoc-codeblock-include $IN/codeblock_include.md -o $OUT/codeblock_include.complete.md
+# # 14. Codeblock Include
+# $PANDOC --filter pandoc-codeblock-include $IN/codeblock_include.md -o $OUT/codeblock_include.complete.md
 
 # 15. dia
 DIA="docker run $DOCKER_OPT --entrypoint dia velocitymob/pandocker:$TAG --verbose"
@@ -109,10 +109,10 @@ $DIA $IN/db.dia --export $OUT/db.svg
 ##
 
 # fetch artefacts
-docker cp pandoc-volumes:/pandoc/$OUT tests
+# docker cp pandoc-volumes:/pandoc/$OUT tests
 
-# 101.  Issue #75 : https://github.com/dalibo/pandocker/issues/75
-diff $OUT/magicienletter.html $EXPECTED/magicienletter.html
+# # 101.  Issue #75 : https://github.com/dalibo/pandocker/issues/75
+# diff $OUT/magicienletter.html $EXPECTED/magicienletter.html
 
-# 102.  Issue #89 : Include filter
-grep -v '!include' tests/output/include.complete.md > /dev/null
+# # 102.  Issue #89 : Include filter
+# grep -v '!include' tests/output/include.complete.md > /dev/null

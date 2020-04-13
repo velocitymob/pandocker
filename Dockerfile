@@ -39,6 +39,7 @@ RUN set -x && \
         lmodern \
         texlive \
         texlive-lang-english \
+        texlive-lang-french \
         texlive-lang-german \
         texlive-luatex \
         texlive-pstricks \
@@ -157,11 +158,12 @@ RUN mkdir -p ${TEMPLATES_DIR} && \
 
 ARG EISVOGEL_REPO=https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template
 ARG EISVOGEL_VERSION=v1.4.0
-RUN wget ${EISVOGEL_REPO}/${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex
-#     ln -s ${TEXMFLOCAL} /texmf && \
-#     # Links for the root user
-#     ln -s /.pandoc /root/.pandoc && \
-#     ln -s ${TEXMFLOCAL} /root/texmf
+RUN wget ${EISVOGEL_REPO}/${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex && \
+    ln -s ${TEXMFLOCAL} /texmf 
+    # && \
+    # Links for the root user
+    # ln -s /.pandoc /root/.pandoc && \
+    # ln -s ${TEXMFLOCAL} /root/texmf
 
 # RUN mkdir -p ${TEMPLATES_DIR} && \
 #     wget ${EISVOGEL_REPO}/${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex && \
@@ -219,6 +221,5 @@ WORKDIR /pandoc
 
 # Compatibility with Pandoc 1.x arguments
 # use `--entrypoint=pandoc1.sh` to activate it
-# ADD pandoc1.sh /usr/local/bin
-
+ADD pandoc1.sh /usr/local/bin
 ENTRYPOINT ["pandoc"]

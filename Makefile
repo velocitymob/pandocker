@@ -1,5 +1,6 @@
 NAME?=velocitymob/pandocker
-TAG?=$(shell git branch | grep -e "^*" | cut -d' ' -f 2)
+# TAG?=$(shell git branch | grep -e "^*" | cut -d' ' -f 2)
+TAG?=latest
 PANDOC_VERSION?=2.9.2.1
 
 all: build

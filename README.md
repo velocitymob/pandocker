@@ -1,28 +1,28 @@
 # pandocker
 
 [![github
-release](https://img.shields.io/github/release/dalibo/pandocker.svg?label=current+release)](https://github.com/dalibo/pandocker/releases)
-[![Docker Image](https://images.microbadger.com/badges/image/dalibo/pandocker.svg)](https://hub.docker.com/r/dalibo/pandocker)
-[![CI](https://circleci.com/gh/dalibo/pandocker.svg?style=shield)](https://circleci.com/gh/dalibo/pandocker)
-[![License](https://img.shields.io/github/license/dalibo/pandocker.svg)](https://github.com/dalibo/pandocker/blob/master/LICENSE)
-[![Last Commit](https://img.shields.io/github/last-commit/dalibo/pandocker.svg)](https://github.com/dalibo/pandocker/branches)
+release](https://img.shields.io/github/release/velocitymob/pandocker.svg?label=current+release)](https://github.com/velocitymob/pandocker/releases)
+[![Docker Image](https://images.microbadger.com/badges/image/velocitymob/pandocker.svg)](https://hub.docker.com/r/velocitymob/pandocker)
+[![CI](https://circleci.com/gh/velocitymob/pandocker.svg?style=shield)](https://circleci.com/gh/velocitymob/pandocker)
+[![License](https://img.shields.io/github/license/velocitymob/pandocker.svg)](https://github.com/velocitymob/pandocker/blob/master/LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/velocitymob/pandocker.svg)](https://github.com/velocitymob/pandocker/branches)
 
 A simple docker image for pandoc with filters, templates, fonts and the
-latex bazaar.
+latex bazaar. 
 
 ## How To
 
-Run `dalibo/pandocker`  with regular `pandoc` args. Mount your files at `/pandoc`.
+Run `velocitymob/pandocker`  with regular `pandoc` args. Mount your files at `/pandoc`.
 
 ``` console
-$ docker run --rm -u `id -u`:`id -g` -v `pwd`:/pandoc dalibo/pandocker README.md
+$ docker run --rm -u `id -u`:`id -g` -v `pwd`:/pandoc velocitymob/pandocker README.md
 ```
 
 Tip: use a shell alias to use `pandocker` just like `pandoc`.
 Add this to your `~/.bashrc` :
 
 ``` console
-$ alias pandoc="docker run --rm -u `id -u`:`id -g` -v `pwd`:/pandoc dalibo/pandocker"
+$ alias pandoc="docker run --rm -u `id -u`:`id -g` -v `pwd`:/pandoc velocitymob/pandocker"
 $ pandoc document.md
 ```
 
@@ -105,5 +105,5 @@ These tools can be used by modifying the entrypoint of the image. For instance,
 you can convert a `dia` source file into an SVG image like this:
 
 ``` console
-$ docker run [..] --entrypoint dia dalibo/pandocker foo.dia -e foo.svg
+$ docker run [..] --entrypoint dia velocitymob/pandocker foo.dia -e foo.svg
 ```

@@ -26,11 +26,11 @@ RUN set -x && \
     apt-get -qq update && \
     apt-get -qy install --no-install-recommends \
         # for deployment
-				aspell \
-				spell \
-				cmake \
-				build-essential \
-				wget \
+		aspell \
+		spell \
+		cmake \
+		build-essential \
+		wget \
         openssh-client \
         rsync \
         # for locales and utf-8 support
@@ -49,8 +49,12 @@ RUN set -x && \
 		# dia
 		dia \
         # fonts
+        fonts-dejavu \
         fonts-lato \
         fonts-liberation \
+        fonts-noto \
+        fonts-font-awesome \    
+        fonts-roboto \
         # build tools
         make \
         git \
@@ -96,7 +100,7 @@ ADD cache/ ./cache
 #
 # Install pandoc from upstream. Debian package is too old.
 #
-ARG PANDOC_VERSION=2.7
+ARG PANDOC_VERSION=2.9.1
 ADD fetch-pandoc.sh /usr/local/bin/
 RUN fetch-pandoc.sh ${PANDOC_VERSION} ./cache/pandoc.deb && \
     dpkg --install ./cache/pandoc.deb && \
@@ -105,18 +109,72 @@ RUN fetch-pandoc.sh ${PANDOC_VERSION} ./cache/pandoc.deb && \
 #
 # Pandoc filters
 #
+
+#
+# Python filters
+#
+
 ADD requirements.txt ./
 RUN pip3 --no-cache-dir install --find-links file://${PWD}/cache -r requirements.txt
 
+#
+# pandoc-crossref
+#
+# This version must correspond to the correct PANDOC_VERSION.
+# See https://github.com/lierdakil/pandoc-crossref/releases to find the latest
+# release corresponding to the desired pandoc version.
+ARG PANDOC_CROSSREF_VERSION=0.3.6.1a
+ADD fetch-pandoc-crossref.sh /usr/local/bin/
+RUN fetch-pandoc-crossref.sh ${PANDOC_VERSION} ${PANDOC_CROSSREF_VERSION} ./cache/pandoc-crossref.tar.gz && \
+    tar xf ./cache/pandoc-crossref.tar.gz && \
+    install pandoc-crossref /usr/local/bin/ && \
+    install -d /usr/local/man/man1 && \
+    install pandoc-crossref.1 /usr/local/man/man1/
+
+# Templates
+
+ARG TEXMFLOCAL=TEXMFLOCAL=/usr/local/share/texmf
+
+
+ENV TEXMFLOCAL=/usr/local/share/texmf
+ARG TEMPLATES_DIR=/.pandoc/templates
 
 #
 # eisvogel template
 #
-ARG TEMPLATES_DIR=/root/.pandoc/templates
+# eisvogel template
+
+ARG EISVOGEL_REPO=https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template
+ARG EISVOGEL_VERSION=v1.4.0
+
 RUN mkdir -p ${TEMPLATES_DIR} && \
-    wget https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template/master/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex
+    wget ${EISVOGEL_REPO}/${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATES_DIR}/eisvogel.latex && \
+    # Links for the non-existent
+    ln -s ${TEXMFLOCAL} /texmf && \
+    # Links for the root user
+    ln -s /.pandoc /root/.pandoc && \
+    ln -s ${TEXMFLOCAL} /root/texmf
+
 RUN tlmgr init-usertree && \
-    tlmgr install ly1 inconsolata sourcesanspro sourcecodepro mweights noto
+    tlmgr install awesomebox fontawesome ly1 inconsolata sourcesanspro sourcecodepro mweights noto && \
+    # fixup: download awesome-compat
+    # this may not be requitred with debian buster
+    # see: https://github.com/Wandmalfarbe/pandoc-latex-template/issues/154#issuecomment-586620431
+    wget https://raw.githubusercontent.com/milouse/latex-awesomebox/master/awesomebox-compat.sty \
+            -O ${TEXMFLOCAL}/tex/latex/awesomebox/awesomebox-compat.sty
+
+# letter template
+ARG LETTER_REPO=https://raw.githubusercontent.com/aaronwolen/pandoc-letter
+ARG LETTER_VERSION=master
+RUN wget ${LETTER_REPO}/${LETTER_VERSION}/template-letter.tex -O ${TEMPLATES_DIR}/letter.latex
+
+# leaflet template
+ARG LEAFLET_REPO=https://gitlab.com/daamien/pandoc-leaflet-template/raw
+ARG LEAFLET_VERSION=1.0
+RUN wget ${LEAFLET_REPO}/${LEAFLET_VERSION}/leaflet.latex -O ${TEMPLATES_DIR}/leaflet.latex
+
+
+
 
 #
 # emojis support for latex
